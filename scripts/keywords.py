@@ -8,11 +8,12 @@ def main(output_filepath):
             open(filepath, "r", encoding="utf-8") as fin,
             open(output_filepath, "w", encoding="utf-8") as fout,
         ):
+            fout.write("payload:\n")
             for line in fin:
                 line = line.strip()
                 if line:
                     # 将"DOMAIN-KEYWORD"规则写入到"keywords.txt"文件中
-                    fout.write(f"DOMAIN-KEYWORD,{line}\n")
+                    fout.write(f"  - DOMAIN-KEYWORD,{line}\n")
     except FileNotFoundError:
         print(f"文件 '{filepath}' 未找到。")
 
