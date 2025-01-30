@@ -53,26 +53,12 @@ jobs:
           python3 -u ./scripts/simplify.py gfw.txt
 
   nya-2:
-    needs: [get-food, nya-1] # 更清晰的依赖关系
+    needs: [get-food, nya-1]
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3.5.3
-
       - name: Generate release tag
         id: tag
         run: echo "tag=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1.1.4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.tag.outputs.tag }}
-          release_name: Release ${{ steps.tag.outputs.tag }}
-          draft: false
-          prerelease: false
 
       - name: Download artifacts
         uses: actions/download-artifact@v4
@@ -80,24 +66,15 @@ jobs:
           name: gfw-artifact
           path: ./
 
-      - name: Upload gfw.txt
-        id: upload-gfw-txt
-        uses: actions/upload-release-asset@v1.0.2
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./gfw.txt
-          asset_name: gfw.txt
-          asset_content_type: text/plain
-
-      - name: Upload keywords.txt
-        id: upload-keywords-txt
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./keywords.txt
-          asset_name: keywords.txt
-          asset_content_type: text/plain
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: Release ${{ steps.tag.outputs.tag }}
+          files: |
+            gfw.txt
+            keywords.txt
+          draft: false
+          prerelease: false
