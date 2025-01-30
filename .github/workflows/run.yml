@@ -5,6 +5,9 @@ on:
     - cron: "0 0 * * *" # 每天早八撸一次猫 =w=
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   get-food:
     runs-on: ubuntu-latest
