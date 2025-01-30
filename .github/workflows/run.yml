@@ -20,10 +20,10 @@ jobs:
           set -e
           curl -O https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/gfw.txt
 
-      - name: Upload gfw.txt as artifact
+      - name: Upload gfw-raw.txt as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: gfw-artifact
+          name: gfw-raw-artifact
           path: ./gfw.txt
           retention-days: 1
 
@@ -39,10 +39,10 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Download gfw.txt
+      - name: Download gfw-raw.txt
         uses: actions/download-artifact@v4
         with:
-          name: gfw-artifact
+          name: gfw-raw-artifact
           path: ./
 
       - name: Make keywords.txt
@@ -57,10 +57,19 @@ jobs:
           path: ./keywords.txt
           retention-days: 1
 
-      - name: Make gfw.txt
+      - name: Process and rename gfw.txt
         run: |
           set -e
-          python3 -u ./scripts/simplify.py gfw.txt
+          mv gfw.txt gfw-raw.txt
+          python3 -u ./scripts/simplify.py gfw-raw.txt
+          mv gfw-raw.txt gfw.txt
+
+      - name: Upload processed gfw.txt
+        uses: actions/upload-artifact@v4
+        with:
+          name: gfw-processed-artifact
+          path: ./gfw.txt
+          retention-days: 1
 
   nya-2:
     needs: [get-food, nya-1] # 更清晰的依赖关系
@@ -70,10 +79,10 @@ jobs:
         id: tag
         run: echo "tag=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
 
-      - name: Download gfw.txt
+      - name: Download processed gfw.txt
         uses: actions/download-artifact@v4
         with:
-          name: gfw-artifact
+          name: gfw-processed-artifact
           path: ./
 
       - name: Download keywords.txt
