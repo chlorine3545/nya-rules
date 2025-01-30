@@ -15,7 +15,8 @@ jobs:
       - name: Get Files
         run: |
           set -e
-          curl -O https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/gfw.txt
+          chmod +x ./scripts/get-food.sh
+          ./scripts/get-food.sh
 
       - name: Upload gfw.txt as artifact
         uses: actions/upload-artifact@v4
@@ -47,23 +48,36 @@ jobs:
           set -e
           python3 -u ./scripts/keywords.py keywords.txt
 
+      - name: Upload keywords.txt
+        uses: actions/upload-artifact@v4
+        with:
+          name: keywords-artifact
+          path: ./keywords.txt
+          retention-days: 1
+
       - name: Make gfw.txt
         run: |
           set -e
           python3 -u ./scripts/simplify.py gfw.txt
 
   nya-2:
-    needs: [get-food, nya-1]
+    needs: [get-food, nya-1] # 更清晰的依赖关系
     runs-on: ubuntu-latest
     steps:
       - name: Generate release tag
         id: tag
         run: echo "tag=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
 
-      - name: Download artifacts
+      - name: Download gfw.txt
         uses: actions/download-artifact@v4
         with:
           name: gfw-artifact
+          path: ./
+
+      - name: Download keywords.txt
+        uses: actions/download-artifact@v4
+        with:
+          name: keywords-artifact
           path: ./
 
       - name: Create Release
