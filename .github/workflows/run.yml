@@ -79,6 +79,11 @@ jobs:
         id: tag
         run: echo "tag=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
 
+      - name: Checkout repository for release branch
+        uses: actions/checkout@v3.5.3
+        with:
+          fetch-depth: 0
+
       - name: Download processed gfw.txt
         uses: actions/download-artifact@v4
         with:
@@ -90,6 +95,24 @@ jobs:
         with:
           name: keywords-artifact
           path: ./
+
+      - name: Update release branch
+        run: |
+          # Create and checkout release branch
+          git checkout -B release
+
+          # Configure git
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+          # Add and commit files
+          git add gfw.txt keywords.txt
+          git commit -m "Update release files [skip ci]"
+
+          # Push to release branch
+          git push origin release --force
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -103,23 +126,3 @@ jobs:
             keywords.txt
           draft: false
           prerelease: false
-
-      - name: Checkout repository for release branch update
-        uses: actions/checkout@v3.5.3
-        with:
-          fetch-depth: 0
-
-      - name: Update release branch
-        run: |
-          # Create and checkout release branch
-          git checkout -B release
-          cp ../gfw.txt ../keywords.txt ./
-
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          
-          git add gfw.txt keywords.txt
-          git commit -m "Update release files [skip ci]"
-          git push origin release --force
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
