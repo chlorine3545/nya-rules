@@ -1,0 +1,99 @@
+name: Nya Nya Nya
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # 每天早八撸一次猫 =w=
+  workflow_dispatch:
+
+jobs:
+  get-food:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.3
+
+      - name: Get Files
+        run: |
+          set -e
+          chmod +x ./scripts/get-food.sh
+          ./scripts/get-food.sh
+
+      - name: Upload gfw.txt as artifact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: gfw-artifact
+          path: ./gfw.txt
+          retention-days: 1
+
+  nya-1:
+    needs: get-food
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4.7.0
+        with:
+          python-version: "3.12"
+          cache: 'pip'
+
+      - name: Download gfw.txt
+        uses: actions/download-artifact@v3.0.2
+        with:
+          name: gfw-artifact
+          path: ./
+
+      - name: Make keywords.txt
+        run: |
+          set -e
+          python3 -u ./scripts/keywords.py keywords.txt
+
+      - name: Make gfw.txt
+        run: |
+          set -e
+          python3 -u ./scripts/simplify.py gfw.txt
+
+  nya-2:
+    needs: [get-food, nya-1] # 更清晰的依赖关系
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.3
+
+      - name: Generate release tag
+        id: tag
+        run: echo "tag=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1.1.4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          release_name: Release ${{ steps.tag.outputs.tag }}
+          draft: false
+          prerelease: false
+
+      - name: Upload gfw.txt
+        id: upload-gfw-txt
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./gfw.txt
+          asset_name: gfw.txt
+          asset_content_type: text/plain
+
+      - name: Upload keywords.txt
+        id: upload-keywords-txt
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./keywords.txt
+          asset_name: keywords.txt
+          asset_content_type: text/plain
