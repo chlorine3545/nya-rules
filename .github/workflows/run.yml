@@ -15,8 +15,7 @@ jobs:
       - name: Get Files
         run: |
           set -e
-          chmod +x ./scripts/get-food.sh
-          ./scripts/get-food.sh
+          curl -O https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/gfw.txt
 
       - name: Upload gfw.txt as artifact
         uses: actions/upload-artifact@v3.1.2
