@@ -11,9 +11,11 @@ google
 instagram
 linkedin
 netflix
+nitter
 nytimes
 pinterest
 pixiv
+reddit
 telegram
 twitter
 vpn
