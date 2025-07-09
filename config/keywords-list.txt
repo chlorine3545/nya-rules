@@ -1,5 +1,7 @@
 appledaily
 blogspot
+bluesky
+bsky
 captcha
 discord
 dlercloud
@@ -10,12 +12,15 @@ github
 google
 instagram
 linkedin
+mastodon
+mstdn
 netflix
 nitter
 nytimes
 pinterest
 pixiv
 reddit
+social
 telegram
 twitter
 vpn
