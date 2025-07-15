@@ -19,12 +19,20 @@ jobs:
         run: |
           set -e
           curl -O https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/gfw.txt
+          curl -O https://raw.githubusercontent.com/Loyalsoldier/clash-rules/release/proxy.txt
 
       - name: Upload gfw-raw.txt as artifact
         uses: actions/upload-artifact@v4
         with:
           name: gfw-raw-artifact
           path: ./gfw.txt
+          retention-days: 1
+
+      - name: Upload proxy-raw.txt as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: proxy-raw-artifact
+          path: ./proxy.txt
           retention-days: 1
 
   nya-1:
@@ -64,11 +72,25 @@ jobs:
           python3 -u ./scripts/simplify.py gfw-raw.txt
           mv gfw-raw.txt gfw.txt
 
+      - name: Process and rename proxy.txt
+        run: |
+          set -e
+          mv proxy.txt proxy-raw.txt
+          python3 -u ./scripts/simplify.py proxy-raw.txt
+          mv proxy-raw.txt proxy.txt
+
       - name: Upload processed gfw.txt
         uses: actions/upload-artifact@v4
         with:
           name: gfw-processed-artifact
           path: ./gfw.txt
+          retention-days: 1
+
+      - name: Upload processed proxy.txt
+        uses: actions/upload-artifact@v4
+        with:
+          name: proxy-processed-artifact
+          path: ./proxy.txt
           retention-days: 1
 
   nya-2:
