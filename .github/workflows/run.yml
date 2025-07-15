@@ -52,6 +52,12 @@ jobs:
         with:
           name: gfw-raw-artifact
           path: ./
+      
+      - name: Download proxy-raw.txt
+        uses: actions/download-artifact@v4
+        with:
+          name: proxy-raw-artifact
+          path: ./
 
       - name: Make keywords.txt
         run: |
