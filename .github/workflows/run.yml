@@ -118,6 +118,12 @@ jobs:
           name: gfw-processed-artifact
           path: ./ # 确保下载到根目录
 
+      - name: Download processed proxy.txt
+        uses: actions/download-artifact@v4
+        with:
+          name: proxy-processed-artifact
+          path: ./
+
       - name: Download keywords.txt
         uses: actions/download-artifact@v4
         with:
@@ -128,13 +134,14 @@ jobs:
         run: |
           ls -la gfw.txt
           ls -la keywords.txt
+          ls -la proxy.txt
 
       - name: Update release branch
         run: |
           git checkout -B release
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add gfw.txt keywords.txt
+          git add gfw.txt keywords.txt proxy.txt
           git commit -m "Update release files [skip ci]"
           git push origin release --force
         env:
@@ -149,6 +156,7 @@ jobs:
           name: Release ${{ steps.tag.outputs.tag }}
           files: |
             gfw.txt
+            proxy.txt
             keywords.txt
           draft: false
           prerelease: false
